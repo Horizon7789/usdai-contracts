@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      ARBITRUM_RPC_URL: https://arb1.arbitrum.io/rpc
+      # Must point to an Arbitrum archive RPC: the regression suite forks historical blocks.
+      ARBITRUM_RPC_URL: ${{ secrets.ARBITRUM_ARCHIVE_RPC_URL }}
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v4
@@ -24,15 +25,22 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 
+      - name: Validate archive RPC configuration
+        run: |
+          if [ -z "$ARBITRUM_RPC_URL" ]; then
+            echo "::error::Configure the ARBITRUM_ARCHIVE_RPC_URL repository secret with an Arbitrum archive RPC endpoint."
+            exit 1
+          fi
+
       - name: Run expanded stateful fuzz campaign
         run: |
-          forge test \
-            --match-path test/stakedUsdai/RedemptionLogicInvariant.t.sol \
-            --fuzz-runs 1000 \
+          forge test \\
+            --match-path test/stakedUsdai/RedemptionLogicInvariant.t.sol \\
+            --fuzz-runs 1000 \\
             -vvv
 
       - name: Run existing StakedUSDai regression tests
         run: |
-          forge test \
-            --match-path 'test/stakedUsdai/*.t.sol' \
+          forge test \\
+            --match-path 'test/stakedUsdai/*.t.sol' \\
             -vv
