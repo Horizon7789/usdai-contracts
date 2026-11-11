@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # Must point to an Arbitrum archive RPC: the regression suite forks historical blocks.
-      ARBITRUM_RPC_URL: ${{ secrets.ARBITRUM_ARCHIVE_RPC_URL }}
+      # Public Arbitrum RPC; historical fork calls may require an archive-capable endpoint.
+      ARBITRUM_RPC_URL: https://arb1.arbitrum.io/rpc
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v4
@@ -24,13 +24,6 @@ jobs:
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
-
-      - name: Validate archive RPC configuration
-        run: |
-          if [ -z "$ARBITRUM_RPC_URL" ]; then
-            echo "::error::Configure the ARBITRUM_ARCHIVE_RPC_URL repository secret with an Arbitrum archive RPC endpoint."
-            exit 1
-          fi
 
       - name: Run expanded stateful fuzz campaign
         run: |
