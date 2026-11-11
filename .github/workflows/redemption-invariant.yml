@@ -12,12 +12,25 @@ permissions:
 jobs:
   redemption-invariant:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout repository and submodules
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
-      - name: Run redemption invariant tests
-        run: forge test --match-path test/stakedUsdai/RedemptionLogicInvariant.t.sol -vvv
+
+      - name: Run expanded stateful fuzz campaign
+        run: |
+          forge test \
+            --match-path test/stakedUsdai/RedemptionLogicInvariant.t.sol \
+            --fuzz-runs 1000 \
+            -vvv
+
+      - name: Run existing StakedUSDai regression tests
+        run: |
+          forge test \
+            --match-path 'test/stakedUsdai/*.t.sol' \
+            -vv
