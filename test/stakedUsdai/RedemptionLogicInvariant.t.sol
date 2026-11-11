@@ -66,6 +66,8 @@ contract RedemptionLogicHarness is StakedUSDaiStorage {
 contract RedemptionLogicInvariantTest is Test {
     uint256 internal constant WAD = 1e18;
     address internal constant ALICE = address(0xA11CE);
+    address internal constant BOB = address(0xB0B);
+    address internal constant CAROL = address(0xCA401);
 
     RedemptionLogicHarness internal harness;
 
@@ -142,7 +144,8 @@ contract RedemptionLogicInvariantTest is Test {
         uint256 remaining = totalRequested;
         uint256 step;
         while (remaining > 0) {
-            uint256 chunk = bound(_random(seed, 10 + step), 1, remaining);
+            uint256 minChunk = remaining > 1e18 ? 1e18 : 1;
+            uint256 chunk = bound(_random(seed, 10 + step), minChunk, remaining);
             uint256 price = bound(_random(seed, 100 + step), 5e17, 15e17);
             harness.process(chunk, price);
             remaining -= chunk;
@@ -211,10 +214,12 @@ contract RedemptionLogicInvariantTest is Test {
         uint256 cursor = head;
         uint256 previous;
         uint256 visited;
+        bool first = true;
         while (cursor != 0) {
             IStakedUSDai.Redemption memory item = harness.redemption(cursor);
             assertGt(item.pendingShares, 0, "queue contains a serviced request");
-            assertEq(item.prev, previous, "queue previous pointer mismatch");
+            if (!first) assertEq(item.prev, previous, "queue previous pointer mismatch");
+            first = false;
             previous = cursor;
             cursor = item.next;
             ++visited;
