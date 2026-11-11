@@ -34,13 +34,13 @@ jobs:
 
       - name: Run expanded stateful fuzz campaign
         run: |
-          forge test \\
-            --match-path test/stakedUsdai/RedemptionLogicInvariant.t.sol \\
-            --fuzz-runs 1000 \\
+          forge test \
+            --match-path test/stakedUsdai/RedemptionLogicInvariant.t.sol \
+            --fuzz-runs 1000 \
             -vvv
 
       - name: Run existing StakedUSDai regression tests
         run: |
-          forge test \\
-            --match-path 'test/stakedUsdai/*.t.sol' \\
+          forge test \
+            --match-path 'test/stakedUsdai/*.t.sol' \
             -vv
