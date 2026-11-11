@@ -1,0 +1,23 @@
+name: Redemption invariant PoC
+
+on:
+  push:
+    branches:
+      - redemption-invariant-poc
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  redemption-invariant:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+      - name: Run redemption invariant tests
+        run: forge test --match-path test/stakedUsdai/RedemptionLogicInvariant.t.sol -vvv
